@@ -1,5 +1,7 @@
-from datamuse import datamuse
 import pygame
+import random
+import math
+from datamuse import datamuse
 
 api = datamuse.Datamuse()
 pygame.init()
