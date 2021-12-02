@@ -76,6 +76,7 @@ def getNumPlayers():
 # Have user enter the names of the players
 def addName(numP):
     name = ""
+    num = 0
     player = []
     while True:
         for event in pygame.event.get():
@@ -96,15 +97,21 @@ def addName(numP):
                 elif event.key == pygame.K_RETURN:
                     if len(name) > 0:
                         player.append(name)
+                        num += 1
                         if len(player) == numP:
                             return player
                     name = ""
         screenColor()
+        Surf = font.render('Number of players entered: ' + str(num), True, (255, 255, 255))
+        Rect = Surf.get_rect()
+        Rect.midtop = (400, 100)
+        screen.blit(Surf, Rect)
         Surf = font.render(name, True, (255, 255, 255))
         Rect = Surf.get_rect()
         Rect.center = screen.get_rect().center
         screen.blit(Surf, Rect)
         pygame.display.flip()
+
 
 def getWord():
     print("get word")
@@ -148,6 +155,8 @@ while running:
         players = addName(numPlayers)
         # Print statement is to check to make sure function works
         print(players)
+        screenColor()
+        pygame.display.flip()
         needNames = False
 
     # Display player names
