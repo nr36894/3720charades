@@ -3,6 +3,7 @@ import random
 import math
 import time
 from datamuse import datamuse
+from pygame.constants import K_1
 
 api = datamuse.Datamuse()
 pygame.init()
@@ -15,102 +16,13 @@ font = pygame.font.SysFont('arial', 50)
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
 
+# important variables
+running = True
+points = [0,0]
+
 # Background color of screen
 def screenColor():
     screen.fill(black)
-
-# See if player wants to play in teams or individuals
-def checkTeams():
-    Surf = font.render('Play in Teams (T) or Solo (S)?', True, white)
-    Rect = Surf.get_rect()
-    Rect.center = screen.get_rect().center
-    screen.blit(Surf, Rect)
-    pygame.display.flip()
-    run = True
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            # Press "t" for team and "s" for solo
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_t:
-                    return True
-                elif event.key == pygame.K_s:
-                    return False
-
-# Get the number of players in the game
-# Must be greater than 0
-def getNumPlayers():
-    num = 0
-    string_num = ""
-    run = True
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-            elif event.type == pygame.KEYDOWN:
-                # Adds it to string if it is numeric
-                if event.unicode.isnumeric():
-                    string_num += event.unicode
-                # Removes number for string if backspace is pressed
-                elif event.key == pygame.K_BACKSPACE:
-                    string_num = string_num[:-1]
-                # Press enter to turn string to number and check if it's greater than 0
-                # Will clear and repeat if 0
-                elif event.key == pygame.K_RETURN:
-                    num = int(string_num)
-                    if num > 0:
-                        return num
-                    string_num = ""
-        screenColor()
-        Surf = font.render('Enter Number of Players', True, (255, 255, 255))
-        Rect = Surf.get_rect()
-        Rect.midtop = (400, 100)
-        screen.blit(Surf, Rect)
-        Surf = font.render(string_num, True, (255, 255, 255))
-        Rect = Surf.get_rect()
-        Rect.center = screen.get_rect().center
-        screen.blit(Surf, Rect)
-        pygame.display.flip()
-
-# Have user enter the names of the players
-def addName(numP):
-    name = ""
-    num = 0
-    player = []
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-            elif event.type == pygame.KEYDOWN:
-                # Adds letters to names
-                if event.unicode.isalpha():
-                    name += event.unicode
-                # Adds space to name
-                elif event.key == pygame.K_SPACE:
-                    name += event.unicode
-                # Deletes last letter if backspace is pressed
-                elif event.key == pygame.K_BACKSPACE:
-                    name = name[:-1]
-                # Adds name to list of players
-                # Repeats until number of players is reached
-                elif event.key == pygame.K_RETURN:
-                    if len(name) > 0:
-                        player.append(name)
-                        num += 1
-                        if len(player) == numP:
-                            return player
-                    name = ""
-        screenColor()
-        Surf = font.render('Number of players entered: ' + str(num), True, (255, 255, 255))
-        Rect = Surf.get_rect()
-        Rect.midtop = (400, 100)
-        screen.blit(Surf, Rect)
-        Surf = font.render(name, True, (255, 255, 255))
-        Rect = Surf.get_rect()
-        Rect.center = screen.get_rect().center
-        screen.blit(Surf, Rect)
-        pygame.display.flip()
 
 
 def getWord():
@@ -126,38 +38,43 @@ def generateButtons():
 
     # skip word
 
-teamStart = True
-needNum = True
-needNames = True
-numPlayers = 0
-players = []
+def showScore(choice=1):
+    # Team 1
+    text1 = ""
+    text2 = ""
+    sFont = pygame.font.SysFont('arial', 35)
+    
+    # Score shown during game play with each team's points
+    # Scores will be shown in upper left hand corner
+    if choice == 1:
+        text1 = "Team 1 Score: " + str(points[0])
+        text2 = "Team 2 Score: " + str(points[1])
+        t1surf = sFont.render(text1, True, white)
+        t1rect = t1surf.get_rect()
+        t1rect.topleft = (140, 10)
+        screen.blit(t1surf, t1rect)
+        t2surf = sFont.render(text2, True, white)
+        t2rect = t2surf.get_rect()
+        t2rect.topleft = (140, 50)
+        screen.blit(t2surf, t2rect)
+    # At end, winner/tie is shown with the number of points
+    # Statement shown in upper middle of screen
+    else:
+        if points[0] > points[1]:
+            text1 = "Team 1 Wins w/ " + str(points[0]) + " Points"
+        elif points[1] > points[0]:
+            text1 = "Team 2 Wins w/ " + str(points[1]) + " Points"
+        else:
+            text1 = "Tie w/ " + str(points[0]) + " Points"
+        t1surf = sFont.render(text1, True, white)
+        t1rect = t1surf.get_rect()
+        t1rect.midtop = (400, 120)
+        screen.blit(t1surf, t1rect)
+    
+    pygame.display.flip()
 
-running = True
 while running:
     screenColor()
-
-    if teamStart:
-        isTeam = checkTeams()
-        # These print statements are to check to make sure function works
-        if isTeam:
-            print("It's a team")
-        else:
-            print("It's solo")
-        teamStart = False
-    
-    if needNum:
-        numPlayers = getNumPlayers()
-        # Print statement is to check to make sure function works
-        print(numPlayers)
-        needNum = False
-
-    if needNames:
-        players = addName(numPlayers)
-        # Print statement is to check to make sure function works
-        print(players)
-        screenColor()
-        pygame.display.flip()
-        needNames = False
 
     # Display player names
     
@@ -169,8 +86,22 @@ while running:
 
     # Display buttons
 
-    # Display 
+    # Display
+
+    # Demo to show how score is shown 
+    if points[0] < 10 and points[1] < 10:
+        showScore() # To show the score
+    else:
+        showScore(0) # To show winner/tie
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        # Temporary elif statement to show how points can be added to a team
+        elif event.type == pygame.KEYDOWN:
+            # Pressing 1 adds to team 1
+            if event.key == pygame.K_1:
+                points[0] += 1
+            # Pressing 2 adds to team 2
+            elif event.key == pygame.K_2:
+                points[1] += 1
