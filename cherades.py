@@ -106,7 +106,6 @@ def addName(numP):
         screen.blit(Surf, Rect)
         pygame.display.flip()
 
-
 def getWord():
     print("get word")
     # get the word
