@@ -9,8 +9,12 @@ api = datamuse.Datamuse()
 pygame.init()
 
 screen = pygame.display.set_mode((800, 600))
+clock = pygame.time.Clock()
+counter, text = 10, '10'.rjust(3)
+font = pygame.font.SysFont('Consolas', 30)
+
+pygame.time.set_timer(pygame.USEREVENT, 1000)
 pygame.display.set_caption('Let\'s Play Charades')
-font = pygame.font.SysFont('arial', 50)
 
 # Colors
 black = pygame.Color(0, 0, 0)
@@ -70,8 +74,6 @@ def showScore(choice=1):
         t1rect = t1surf.get_rect()
         t1rect.midtop = (400, 120)
         screen.blit(t1surf, t1rect)
-    
-    pygame.display.flip()
 
 while running:
     screenColor()
@@ -95,7 +97,11 @@ while running:
         showScore(0) # To show winner/tie
 
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.USEREVENT: 
+            print("test")
+            counter -= 1
+            text = str(counter).rjust(3)if counter > 0 else 'Game Over!'
+        elif event.type == pygame.QUIT:
             running = False
         # Temporary elif statement to show how points can be added to a team
         elif event.type == pygame.KEYDOWN:
@@ -105,3 +111,7 @@ while running:
             # Pressing 2 adds to team 2
             elif event.key == pygame.K_2:
                 points[1] += 1
+    
+    screen.blit(font.render(text, True, white), (320, 480))
+    pygame.display.flip()
+    clock.tick(60)
